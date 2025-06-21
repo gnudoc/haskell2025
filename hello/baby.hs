@@ -85,5 +85,6 @@ primesUnder200 = [x | x <- [2..200], odd x,
                                    x`mod`7/=0,
                                    x`mod`11/=0,
                                    x`mod`13/=0]
+-- not the actual fizz-buzz problem - just demonstrates using a function parameter
 fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
 
