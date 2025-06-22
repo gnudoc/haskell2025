@@ -12,9 +12,9 @@ conanO'Brien = "Hi! I'm Conan!"
 -- functions are immutable
 
 
----------
---LISTS--
----------
+----------------------
+--LISTS--AND--TUPLES--
+----------------------
 
 -- lists are homogenous - all the same type of items
 primes = [2,3,5,7,11]
@@ -85,6 +85,27 @@ primesUnder200 = [x | x <- [2..200], odd x,
                                    x`mod`7/=0,
                                    x`mod`11/=0,
                                    x`mod`13/=0]
--- not the actual fizz-buzz problem - just demonstrates using a function parameter
+-- not the actual fizz-buzz problem - just demonstrates using a function parametero
 fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
+
+-- TUPLES --
+-- tuple types include their length and the types of their elements
+-- and they're not necessarily homogenous
+-- so you can't have a list of a (string, integer) and a pair of (integer, string)
+-- or a pair and a triple.
+
+---------
+--TYPES--
+---------
+
+-- staticly typed
+-- every expression has a type, including functions
+-- type inference
+-- :: == "has a type of" - both in our type declarations and in repl/compiler messages
+-- function type declarations:
+---- myFunction :: Int -> Int -> Bool -- notice no separation of parameters and return
+---- myFunction x y = if x == y then True else False
+
+-- Int is a 32 or 64 bit signed integer (so fast, but overflow bugs)
+-- Integer is of arbitrary precision
 
