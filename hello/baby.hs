@@ -100,7 +100,8 @@ fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
 
 -- staticly typed
 -- every expression has a type, including functions
--- type inference
+-- type inference works
+-- type names have Capitals
 -- :: == "has a type of" - both in our type declarations and in repl/compiler messages
 -- function type declarations:
 ---- myFunction :: Int -> Int -> Bool -- notice no separation of parameters and return
@@ -108,4 +109,26 @@ fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
 
 -- Int is a 32 or 64 bit signed integer (so fast, but overflow bugs)
 -- Integer is of arbitrary precision
+-- Floats are single-precision, Doubles are double-precision
 
+-- Type variables - like generics (from other langs) with additional power
+-- written with lowercase e.g. the repl will report that:
+-- :t head
+-- head :: [a] -> a
+-- :t fst
+-- fst :: (a, b) -> a
+
+-- typeclasses - like interfaces in java, for polymorphism
+-- :t elem
+-- elem :: (Foldable t, Eq a) => a -> t a -> Bool
+---  elem takes an a and a container t holding more a's and returns a Bool.
+---  The t has to be Foldable (ie traversible)
+---  The a has to be Eq-able (ie comparable for equality)
+-- NB Eq is a different comparability vs Ord (which is required for funcs like (>)
+
+-- sometimes, a function will return a type from a typeclass, but more info is needed
+-- to work out which *particular* type - either by inference or by a type annotation
+--   eg read :: (Read a) => String -> a - takes a string version of some other type,
+--   like "7" or "15.2" or "True" and knows to return a Read-able type, but which one?
+--   if we do `read "7" + 3.2` it'll infer a Float but `read "7" + 3` infers an Int
+--   we can do type annotation -  `read "7" :: Float` -  if inference not possible
