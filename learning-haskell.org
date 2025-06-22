@@ -259,3 +259,50 @@ describeList [1, 2, 3]
 : The list is empty.
 : The list is a singleton list.
 : The list is a longer list.
+
+* Higher-Order Functions and Folds 
+
+A **higher-order function** is a function that either takes another function as an argument, or returns a function as its result. This is one of the most powerful ideas in functional programming, letting us abstract away common patterns like recursion. (So all those people who moan about functional languages having too much recursion should probably learn higher-order functions...)
+
+The function =foldr= (right fold) is a classic example. It "collapses" a list into a single value by repeatedly applying the provided function.
+
+This is its type signature:
+#+BEGIN_SRC haskell
+-- This is our custom implementation for learning purposes. The standard `foldr` is in the Prelude.
+foldr01 :: (a -> b -> b) -> b -> [a] -> b
+#+END_SRC
+
+So:
+- = (a -> b -> b) = : This is the first argument, =f=. It is itself a function, which takes an element from the list (type =a=), an accumulator (type =b=), and returns a new accumulator (type =b=).
+- = b = : This is the second argument, =v=. It's the starting value for the accumulator.
+- = [a] = : The third argument is the list of =a='s to be folded.
+- = b = : The final result of the fold.
+
+Here is the implementation using recursion and pattern matching:
+#+BEGIN_SRC haskell
+foldr01 :: (a -> b -> b) -> b -> [a] -> b
+foldr01 f v []       = v                  -- Base case: If the list is empty, return the starting value.
+foldr01 f v (x : xs) = f x (foldr01 f v xs) -- Recursive case: Apply the function `f` to the head `x`
+                                           -- and the result of folding the rest of the list `xs`.
+#+END_SRC
+
+We can now define common list operations very elegantly by providing different functions and starting values to our fold.
+
+#+BEGIN_SRC haskell
+-- To sum a list, the function is `+` and the starting value is `0`.
+sumList01 :: (Num a) => [a] -> a
+sumList01 = foldr01 (+) 0
+
+-- To find the product of a list, the function is `*` and the starting value is `1`.
+prodList01 :: (Num a) => [a] -> a
+prodList01 = foldr01 (*) 1
+
+sumList01 [1,2,3,4,5]
+prodList01 [1,2,3,4,5]
+#+END_SRC
+
+#+RESULTS:
+: 15
+: 120
+
+This shows the power of abstracting recursion. We write the folding logic *once* in =foldr01=, and then reuse it to build many different functions without ever writing a recursive call again.
