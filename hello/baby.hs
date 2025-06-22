@@ -133,3 +133,24 @@ fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
 --   like "7" or "15.2" or "True" and knows to return a Read-able type, but which one?
 --   if we do `read "7" + 3.2` it'll infer a Float but `read "7" + 3` infers an Int
 --   we can do type annotation -  `read "7" :: Float` -  if inference not possible
+
+
+--------------------
+--PATTERN MATCHING--
+--------------------
+
+-- switch/if-elif-else constructs are not needed - just define the function for each case
+-- eg:
+lucky :: (Integral a) => a -> String
+lucky 7 = "DING DING DING! We have a winner!"
+lucky x = "Better luck next time!"
+
+-- same idea with recursion - just define the function for the base and recursive cases:
+factorial :: (Integral a) => a -> a
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+
+-- more pattern-matching - the tuple parameters' items used directly:
+addVectors :: (Num a) => (a,a)->(a,a)->(a,a)
+addVectors (x1,y1) (x2,y2) = (x1+x2,y1+y2)
+-- ^ I'd instinctively put a comma between the 2 parameter pairs but that's wrong

@@ -1,0 +1,261 @@
+#+TITLE: My Haskell Learning Journey
+#+AUTHOR: Aijaz
+#+DATE: [2025-06-22 Sun]
+#+PROPERTY: header-args:haskell :session *my-haskell*
+
+* Introduction
+
+This file is a literate program summarizing my early exploration of the Haskell programming language. Each section contains explanations followed by executable Haskell code blocks. I can execute any block by placing the cursor inside it and pressing =C-c C-c=.
+
+* Basic Syntax: Comments
+
+Haskell has a few ways to write comments.
+
+- Single-line comments start with =--=.
+- Multi-line or "block" comments are enclosed in ={- ... -}=. They can be nested - not the case in all languages.
+- "Haddock" documentation (yes, HAskell DOCumentation... dadjoke...) comments use =-- |= to document the function that follows. This is the standard for documenting top-level functions.
+
+#+BEGIN_SRC haskell
+  -- | This is a Haddock comment for a top-level function.
+  -- | It adds two integers.
+  add :: Int -> Int -> Int
+  add x y = x + y -- This is a regular single-line comment.
+
+  {- This is a block comment.
+     It can span multiple lines.
+     It's useful for temporarily disabling code.
+     {- if this was code it'd be disabled.
+      -}
+  -}
+#+END_SRC
+
+* Pattern Matching
+
+Pattern matching is a core feature of Haskell, far more powerful than a simple =switch= statement. It can match on literal values, bind variables, and deconstruct data structures.
+
+**1. Matching on Values (like a switch)**
+This is used to define different function bodies for specific inputs. The patterns are checked from top to bottom.
+
+#+BEGIN_SRC haskell
+lucky :: (Integral a) => a -> String
+lucky 7 = "DING DING DING! We have a winner!"
+lucky x = "Sorry, '" ++ show x ++ "' is not the lucky number. Try again!"
+
+-- Executing the function
+lucky 7
+lucky 5
+#+END_SRC
+
+#+RESULTS:
+: DING DING DING! We have a winner!
+: Sorry, '5' is not the lucky number. Try again!
+
+**2. Recursion and Base Cases**
+Pattern matching makes recursive functions incredibly clean. You define the base case (e.g., an empty list or zero) and the recursive case.
+
+#+BEGIN_SRC haskell
+factorial :: (Integral a) => a -> a
+factorial 0 = 1                        -- Base case
+factorial n = n * factorial (n - 1)    -- Recursive case
+
+factorial 5
+#+END_SRC
+
+#+RESULTS:
+: 120
+
+**3. Deconstruction (The Unifying Idea)**
+Pattern matching can also assess the *shape* of data and bind its components to variables. The pattern =(x:xs)= matches a non-empty list, binding its head to =x= and its tail to =xs=. The term "cons" (=:=) comes from Lisp and means "construct". Here it is used to deconstruct (ie analyse the structure, and match to bits of the structure)
+'xs' is the plural of x =P yes fellow badjokers, we are among friends =P
+
+#+BEGIN_SRC haskell
+-- A function to sum a list of numbers
+sum' :: (Num a) => [a] -> a
+sum' []     = 0           -- Base case: matches an empty list
+sum' (x:xs) = x + sum' xs -- Deconstructs a non-empty list
+
+sum' [1, 2, 3, 4, 5]
+#+END_SRC
+
+#+RESULTS:
+: 15
+
+Here it is used to deconstruct tuples directly in the function arguments, which is much cleaner than using accessor functions like =fst= and =snd=.
+
+#+BEGIN_SRC haskell
+addVectors' :: (Num a) => (a, a) -> (a, a) -> (a, a)  
+addVectors' (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+
+addVectors' (2, 3) (5, 8)
+#+END_SRC
+
+#+RESULTS:
+: (7,11)
+
+* Typeclasses and Class Constraints
+
+A **typeclass** is a contract or interface that defines a set of functions. A type that implements these functions is an **instance** of that typeclass.
+
+A **class constraint** (the part before the `=>`) specifies what contracts a type must fulfill to be used in a function.
+
+#+BEGIN_SRC haskell
+-- The constraint `Eq a` means this function only works for types `a`
+-- that are instances of the Eq (equality) typeclass.
+-- (==) :: Eq a => a -> a -> Bool
+
+-- `Foldable t` means `t` must be a container you can traverse.
+-- `Eq a` means the elements `a` must be comparable.
+-- elem :: (Foldable t, Eq a) => a -> t a -> Bool
+#+END_SRC
+
+The **`Enum`** typeclass is for types whose values are sequential. Deriving it gives a type integer-like abilities, like using it in ranges.
+
+#+BEGIN_SRC haskell
+data Weekday = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
+  deriving (Enum, Show, Eq, Ord)
+
+-- Now we can get the successor or use ranges
+succ Monday
+[Wednesday .. Saturday]
+#+END_SRC
+
+#+RESULTS:
+: Tuesday
+: [Wednesday,Thursday,Friday,Saturday]
+
+* Guards and the `Maybe` Type
+
+Guards are used to test properties of your inputs, acting as a chain of boolean checks.
+
+The **`Maybe`** type is a "safety box" for values that might not exist. It can be either =Just value= (success) or =Nothing= (failure). This avoids crashes and null pointer errors. The function =readMaybe= is a safe way to parse a string, returning a `Maybe`.
+
+**Pattern guards** combine guards and pattern matching with the =<-= syntax. This is perfect for safely "opening" a `Maybe` box.
+
+#+BEGIN_SRC haskell
+import Text.Read (readMaybe)
+
+-- This version robustly handles string input that might not be a valid number.
+densityTell :: String -> String
+densityTell input
+    -- Pattern guard: succeeds only if `readMaybe` returns a `Just` value.
+    -- The value is extracted and bound to `density`.
+    | Just density <- readMaybe input, density < 1.2         = "Wow! You're going for a ride in the sky!"
+    | Just density <- readMaybe input, density <= 1000.0      = "Have fun swimming, but watch out for sharks!"
+    -- Pattern guard: succeeds only if `readMaybe` returns `Nothing`.
+    | Nothing      <- readMaybe input :: Maybe Float          = "You know I need a density, right?"
+    -- `otherwise` is a catch-all, just a synonym for `True`.
+    | otherwise                                               = "If it's sink or swim, you're going to sink."
+
+densityTell "0.8"
+densityTell "900.0"
+densityTell "not a number"
+densityTell "2000.0"
+#+END_SRC
+
+#+RESULTS:
+: Wow! You're going for a ride in the sky!
+: Have fun swimming, but watch out for sharks!
+: You know I need a density, right?
+: If it's sink or swim, you're going to sink.
+
+* Where, Let, and Case: Local Bindings and Expressions
+
+Haskell provides several ways to create local bindings for variables and functions. This helps avoid repetition and can make code much more readable.
+
+**1. =where= Bindings: Local to a Function**
+The =where= keyword is placed at the end of a function definition, after any guards. The names defined in a =where= block are visible to the entire function, including all of its guards. This is perfect for calculating a value once and using it multiple times.
+
+#+BEGIN_SRC haskell
+densityTell' :: (RealFloat a) => a -> a -> String
+densityTell' mass volume
+    | density < air   = "Wow! You're going for a ride in the sky!"
+    | density <= water = "Have fun swimming, but watch out for sharks!"
+    | otherwise       = "If it's sink or swim, you're going to sink."
+    where density = mass / volume
+          air     = 1.2
+          water   = 1000.0
+
+densityTell' 80.0 100.0
+#+END_SRC
+
+#+RESULTS:
+: Wow! You're going for a ride in the sky!
+
+You can also use pattern matching in =where= bindings.
+
+#+BEGIN_SRC haskell
+initials :: String -> String -> String
+initials firstname lastname = [f] ++ ". " ++ [l] ++ "."
+    where (f:_) = firstname
+          (l:_) = lastname
+
+initials "John" "Smith"
+#+END_SRC
+
+#+RESULTS:
+: "J. S."
+
+**2. =let= Bindings: Local Expressions**
+Unlike =where=, a =let= binding is an *expression* itself. The syntax is =let <bindings> in <expression>=. The names defined in the =let= part are only visible to the =in= part. Because they are expressions, they can be used anywhere an expression is allowed.
+
+#+BEGIN_SRC haskell
+cylinder :: (RealFloat a) => a -> a -> a
+cylinder r h =
+    let sideArea = 2 * pi * r * h
+        topArea  = pi * r^2
+    in  sideArea + 2 * topArea
+
+-- `let` can be used inside other expressions:
+4 * (let a = 9 in a + 1) + 2
+#+END_SRC
+
+#+RESULTS:
+: 42.0
+
+You can also use =let= inside a list comprehension. It doesn't filter the list; it just binds names that can be used later in the comprehension.
+
+#+BEGIN_SRC haskell
+-- Calculate densities, but only return those that are less than 1.2
+calcFloatyDensities :: (RealFloat a) => [(a, a)] -> [a]
+calcFloatyDensities xs = [density | (m, v) <- xs, let density = m / v, density < 1.2]
+
+calcFloatyDensities [(100, 100), (10, 20), (500, 200)]
+#+END_SRC
+
+#+RESULTS:
+: [0.5]
+
+**3. =case= Expressions: Pattern Matching Anywhere**
+While pattern matching on function arguments is common, sometimes you need to match on a value in the middle of an expression. A =case= expression lets you do this. In fact, function-level pattern matching is just "syntactic sugar" for a =case= expression.
+
+These two functions are equivalent:
+#+BEGIN_SRC haskell
+-- Using function-level pattern matching
+head' :: [a] -> a
+head' []    = error "No head for empty lists!"
+head' (x:_) = x
+
+-- Using a case expression
+head'' :: [a] -> a
+head'' xs = case xs of
+              []    -> error "No head for empty lists!"
+              (x:_) -> x
+#+END_SRC
+
+This is useful when you want to use the result of a pattern match within a larger expression.
+#+BEGIN_SRC haskell
+describeList :: [a] -> String
+describeList xs = "The list is " ++ case xs of
+                                      []  -> "empty."
+                                      [x] -> "a singleton list."
+                                      xs  -> "a longer list."
+
+describeList []
+describeList [42]
+describeList [1, 2, 3]
+#+END_SRC
+
+#+RESULTS:
+: The list is empty.
+: The list is a singleton list.
+: The list is a longer list.
