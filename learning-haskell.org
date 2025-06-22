@@ -160,17 +160,17 @@ densityTell "2000.0"
 
 * Where, Let, and Case: Local Bindings and Expressions
 
-Haskell provides several ways to create local bindings for variables and functions. This helps avoid repetition and can make code much more readable.
+Haskell provides several ways to create local bindings for variables and functions. This helps avoid repetition and improves readability.
 
 **1. =where= Bindings: Local to a Function**
-The =where= keyword is placed at the end of a function definition, after any guards. The names defined in a =where= block are visible to the entire function, including all of its guards. This is perfect for calculating a value once and using it multiple times.
+  The =where= keyword is placed at the end of a function definition, after any guards. The names defined in a =where= block are visible to the entire function, including all of its guards. This is good for calculating a value once and using it multiple times.
 
 #+BEGIN_SRC haskell
 densityTell' :: (RealFloat a) => a -> a -> String
 densityTell' mass volume
-    | density < air   = "Wow! You're going for a ride in the sky!"
+    | density < air    = "Wow! You're going for a ride in the sky!"
     | density <= water = "Have fun swimming, but watch out for sharks!"
-    | otherwise       = "If it's sink or swim, you're going to sink."
+    | otherwise        = "If it's sink or swim, you're going to sink."
     where density = mass / volume
           air     = 1.2
           water   = 1000.0
@@ -226,22 +226,22 @@ calcFloatyDensities [(100, 100), (10, 20), (500, 200)]
 : [0.5]
 
 **3. =case= Expressions: Pattern Matching Anywhere**
-While pattern matching on function arguments is common, sometimes you need to match on a value in the middle of an expression. A =case= expression lets you do this. In fact, function-level pattern matching is just "syntactic sugar" for a =case= expression.
+While pattern matching on function arguments is common, sometimes you need to match on a value in the middle of an expression. A =case= expression lets you do this. In fact, function-level pattern matching is just syntactic sugar for a =case= expression.
 
 These two functions are equivalent:
 #+BEGIN_SRC haskell
--- Using function-level pattern matching
-head' :: [a] -> a
-head' []    = error "No head for empty lists!"
-head' (x:_) = x
-
--- Using a case expression
-head'' :: [a] -> a
-head'' xs = case xs of
-              []    -> error "No head for empty lists!"
-              (x:_) -> x
+  -- Using function-level pattern matching
+  head' :: [a] -> a
+  head' []    = error "No head for empty lists!"
+  head' (x:_) = x
+  -- ^ remember, _ means there's a term here and I don't care what it is.
+    
+  -- Using a case expression
+  head'' :: [a] -> a
+  head'' xs = case xs of
+                []    -> error "No head for empty lists!"
+                (x:_) -> x
 #+END_SRC
-
 This is useful when you want to use the result of a pattern match within a larger expression.
 #+BEGIN_SRC haskell
 describeList :: [a] -> String
