@@ -128,6 +128,7 @@ fizzBuzz xx = [if x `mod` 3 == 0 then "fizz" else "buzz" | x <- xx, odd x]
 
 -- sometimes, a function will return a type from a typeclass, but more info is needed
 -- to work out which *particular* type - either by inference or by a type annotation
+-- (because remember we have to know at compile time! dynamic typing is not an option!)
 --   eg read :: (Read a) => String -> a - takes a string version of some other type,
 --   like "7" or "15.2" or "True" and knows to return a Read-able type, but which one?
 --   if we do `read "7" + 3.2` it'll infer a Float but `read "7" + 3` infers an Int
