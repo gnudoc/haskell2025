@@ -5,9 +5,9 @@
 
 * Introduction
 
-This file is a literate program summarizing my early exploration of the Haskell programming language. Each section contains explanations followed by executable Haskell code blocks. I can execute any block by placing the cursor inside it and pressing =C-c C-c=.
+This file is a literate program summarizing my early exploration of the Haskell programming language. Each section contains explanations followed by executable Haskell code blocks. The code blocks can be modified and executed with =C-c C-c=.
 
-* Basic Syntax: Comments
+* Comments
 
 Haskell has a few ways to write comments.
 
@@ -83,8 +83,8 @@ sum' [1, 2, 3, 4, 5]
 Here it is used to deconstruct tuples directly in the function arguments, which is much cleaner than using accessor functions like =fst= and =snd=.
 
 #+BEGIN_SRC haskell
-addVectors' :: (Num a) => (a, a) -> (a, a) -> (a, a)  
-addVectors' (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+addVectors' :: (Num a) => (a, a) -> (a, a) -> (a, a) -- note no special separator between parameter types and return type (curried functions...) 
+addVectors' (x1, y1) (x2, y2) = (x1 + x2, y1 + y2) -- note no comma separator between parameters, only space
 
 addVectors' (2, 3) (5, 8)
 #+END_SRC
