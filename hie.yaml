@@ -1,12 +1,5 @@
-# Place this file at: /home/nij/Projects/haskell2025/hie.yaml
+# Place this file at: /home/nij/Projects/haskell_intro/haskell2025/hie.yaml
 cradle:
   cabal:
-    cabalProject: "./hello/hello.cabal"
-    # The components list must be a *list* and directly under the 'cabal' mapping.
-    # Each item in this list specifies a component for the project defined by 'cabalProject'.
-    components:
-      - path: "./app" # Path relative to "./hello" (the cabalProject directory)
-        component: "hello:exe:hello"
-    # If you had a library:
-    # - path: "./src"
-    #   component: "hello:lib:hello"
+    - path: "./hello/app"
+      component: "hello:exe:hello"
